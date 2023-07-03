@@ -1,4 +1,11 @@
-# pysaj
+# SAJ solar inverter integration
 
-This library was created to communicate with SAJ solar inverters within Home Assistant.
-It is based on the pysma component written by @kellerza
+A Home Assistant custom Integration for SAJ solar inverters.
+
+This library is based on the [core integration](https://www.home-assistant.io/integrations/saj) mostly written by @fredericvl.
+
+## Additional features
+
+- Grid voltage sensors
+- Ignoring
+- Device page

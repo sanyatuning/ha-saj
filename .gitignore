@@ -1,7 +1,4 @@
-pysaj.egg-info
-build
-dist
+.idea/
+.pytest_cache/
 .vscode
-test.py
-pysaj/__pycache__
-pysaj/.vscode
+__pycache__/

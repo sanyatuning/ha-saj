@@ -1,0 +1,8 @@
+aiohttp
+aioresponses
+homeassistant==2022.11.4
+pytest
+pytest-aiohttp
+pytest-asyncio
+pytest-homeassistant-custom-component==0.12.21
+syrupy

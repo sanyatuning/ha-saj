@@ -1,0 +1,22 @@
+<equipment_data>
+<Model>Sununo Plus 3K-M</Model>
+<Max_DC_POWER>3500</Max_DC_POWER>
+<Max_DC_Volt>600</Max_DC_Volt>
+<DC_Current_String>Max.DC Current Input/Per String</DC_Current_String>
+<DC_Current_Content>11A/11A</DC_Current_Content>
+<DC_Conn_Sets>1/1</DC_Conn_Sets>
+<Num_MPPT>2</Num_MPPT>
+<Rated_AC_Power>3000</Rated_AC_Power>
+<Rated_AC_Current>13.6</Rated_AC_Current>
+<Power_Factor>>0.99(full load)</Power_Factor>
+<Consum_Night>&lt;0.2</Consum_Night>
+<Max_Eff>97.4%</Max_Eff>
+<Euro_Eff>97.0%</Euro_Eff>
+<Grid_comp> C10_11 </Grid_comp>
+<MFMW>V1.116</MFMW>
+<SFMW>V1.116</SFMW>
+<DFMW>V1.272</DFMW>
+<SN>13020J2020EN09010</SN>
+<Product_Code>SU03KMTL2EN6SD0000</Product_Code>
+<eth_ver>V1.036</eth_ver>
+</equipment_data>

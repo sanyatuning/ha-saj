@@ -1,12 +1,13 @@
 """PySAJ interacts as a library to communicate with SAJ inverters"""
-import aiohttp
 import asyncio
 import concurrent
 import csv
-from io import StringIO
-from datetime import date
 import logging
 import xml.etree.ElementTree as ET
+from datetime import date
+from io import StringIO
+
+import aiohttp
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -17,6 +18,7 @@ MAPPER_STATES = {
     "3": "Error",
     "4": "Upgrading",
 }
+MAX_UNSIGNED_SHORT = 65535
 
 URL_PATH_ETHERNET = "real_time_data.xml"
 URL_PATH_ETHERNET_INFO = "equipment_data.xml"
@@ -27,8 +29,17 @@ URL_PATH_WIFI_INFO = "info.php"
 class Sensor(object):
     """Sensor definition"""
 
-    def __init__(self, key, csv_1_key, csv_2_key, factor, name, unit='',
-                 per_day_basis=False, per_total_basis=False):
+    def __init__(
+        self,
+        key,
+        csv_1_key,
+        csv_2_key,
+        factor,
+        name,
+        unit="",
+        per_day_basis=False,
+        per_total_basis=False,
+    ):
         self.key = key
         self.csv_1_key = csv_1_key
         self.csv_2_key = csv_2_key
@@ -50,16 +61,18 @@ class Sensors(object):
         self.add(
             (
                 Sensor("p-ac", 11, 23, "", "current_power", "W"),
+                Sensor("v-grid", -1, -1, "/10", "grid_voltage", "V", True),
+                Sensor("Vac_l1", 31, 25, "/10", "grid_l1", "V", True),
+                Sensor("Vac_l2", 32, 27, "/10", "grid_l2", "V", True),
+                Sensor("Vac_l3", 33, 29, "/10", "grid_l3", "V", True),
                 Sensor("e-today", 3, 3, "/100", "today_yield", "kWh", True),
-                Sensor("e-total", 1, 1, "/100", "total_yield", "kWh", False,
-                       True),
+                Sensor("e-total", 1, 1, "/100", "total_yield", "kWh", False, True),
                 Sensor("t-today", 4, 4, "/10", "today_time", "h", True),
                 Sensor("t-total", 2, 2, "/10", "total_time", "h", False, True),
-                Sensor("CO2", 21, 33, "/10", "total_co2_reduced", "kg", False,
-                       True),
+                Sensor("CO2", 21, 33, "/10", "total_co2_reduced", "kg", False, True),
                 Sensor("temp", 20, 32, "/10", "temperature", "°C"),
                 Sensor("state", 22, 34, "", "state"),
-                Sensor("maxPower", -1, -1, "", "today_max_current", "W", True)
+                Sensor("maxPower", -1, -1, "", "today_max_current", "W", True),
             )
         )
 
@@ -110,7 +123,7 @@ class Sensors(object):
 class SAJ(object):
     """Provides access to SAJ inverter data"""
 
-    def __init__(self, host, wifi=False, username='admin', password='admin'):
+    def __init__(self, host, wifi=False, username="admin", password="admin"):
         self.host = host
         self.wifi = wifi
         self.username = username
@@ -119,11 +132,10 @@ class SAJ(object):
 
         self.url = "http://{0}/".format(self.host)
         if self.wifi:
-            if (len(self.username) > 0
-               and len(self.password) > 0):
-                self.url = "http://{0}:{1}@{2}/".format(self.username,
-                                                        self.password,
-                                                        self.host)
+            if len(self.username) > 0 and len(self.password) > 0:
+                self.url = "http://{0}:{1}@{2}/".format(
+                    self.username, self.password, self.host
+                )
                 self.url_info = self.url + URL_PATH_WIFI_INFO
                 self.url += URL_PATH_WIFI
         else:
@@ -135,8 +147,9 @@ class SAJ(object):
 
         try:
             timeout = aiohttp.ClientTimeout(total=5)
-            async with aiohttp.ClientSession(timeout=timeout,
-                                             raise_for_status=True) as session:
+            async with aiohttp.ClientSession(
+                timeout=timeout, raise_for_status=True
+            ) as session:
                 current_url = self.url_info
                 async with session.get(current_url) as response:
                     data = await response.text()
@@ -191,13 +204,14 @@ class SAJ(object):
                                 else:
                                     v = None
 
+                            if v == str(MAX_UNSIGNED_SHORT):
+                                v = None
+
                             if v is not None:
                                 if sen.name == "state":
                                     sen.value = MAPPER_STATES[v]
                                 else:
-                                    sen.value = eval(
-                                        "{0}{1}".format(v, sen.factor)
-                                    )
+                                    sen.value = eval("{0}{1}".format(v, sen.factor))
                                 sen.date = date.today()
                                 sen.enabled = True
                                 at_least_one_enabled = True
@@ -206,7 +220,7 @@ class SAJ(object):
 
                         for sen in sensors:
                             find = xml.find(sen.key)
-                            if find is not None:
+                            if find is not None and find.text != "-":
                                 sen.value = find.text
                                 sen.date = date.today()
                                 sen.enabled = True
@@ -219,19 +233,25 @@ class SAJ(object):
                             raise ET.ParseError
 
                     if sen.enabled:
-                        _LOGGER.debug("Got new value for sensor %s: %s",
-                                      sen.name, sen.value)
+                        _LOGGER.debug(
+                            "Got new value for sensor %s: %s", sen.name, sen.value
+                        )
 
                     return True
-        except (aiohttp.client_exceptions.ClientConnectorError,
-                concurrent.futures._base.TimeoutError):
+        except (
+            aiohttp.client_exceptions.ClientConnectorError,
+            asyncio.exceptions.TimeoutError,
+            concurrent.futures._base.TimeoutError,
+        ):
             # Connection to inverter not possible.
             # This can be "normal" - so warning instead of error - as SAJ
             # inverters are powered by DC and thus have no power after the sun
             # has set.
-            _LOGGER.warning("Connection to SAJ inverter is not possible. " +
-                            "The inverter may be offline due to darkness. " +
-                            "Otherwise check host/ip address.")
+            _LOGGER.warning(
+                "Connection to SAJ inverter is not possible. "
+                + "The inverter may be offline due to darkness. "
+                + "Otherwise check host/ip address."
+            )
             return False
         except aiohttp.client_exceptions.ClientResponseError as err:
             # 401 Unauthorized: wrong username/password
@@ -242,24 +262,28 @@ class SAJ(object):
         except csv.Error:
             # CSV is not valid
             raise UnexpectedResponseException(
-                str.format("No valid CSV received from {0} at {1}", self.host,
-                           current_url)
+                str.format(
+                    "No valid CSV received from {0} at {1}", self.host, current_url
+                )
             )
         except ET.ParseError:
             # XML is not valid or even no XML at all
             raise UnexpectedResponseException(
-                str.format("No valid XML received from {0} at {1}", self.host,
-                           current_url)
+                str.format(
+                    "No valid XML received from {0} at {1}", self.host, current_url
+                )
             )
 
 
 class UnauthorizedException(Exception):
     """Exception for Unauthorized 401 status code"""
+
     def __init__(self, message):
         Exception.__init__(self, message)
 
 
 class UnexpectedResponseException(Exception):
     """Exception for unexpected status code"""
+
     def __init__(self, message):
         Exception.__init__(self, message)
