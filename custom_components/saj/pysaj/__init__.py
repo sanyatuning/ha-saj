@@ -207,6 +207,12 @@ class SAJ(object):
                             if v == str(MAX_UNSIGNED_SHORT):
                                 v = None
 
+                            if v == "0" and sen.name == "total_yield":
+                                _LOGGER.warning(
+                                    "Zero value for total_yield! Values: " + (",".join(values))
+                                )
+                                v = None
+
                             if v is not None:
                                 if sen.name == "state":
                                     sen.value = MAPPER_STATES[v]

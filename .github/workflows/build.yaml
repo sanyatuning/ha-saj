@@ -70,7 +70,7 @@ jobs:
           pip install -r requirements_dev.txt
       - name: Tests suite
         run: |
-          pytest -p no:sugar
+          pytest -p no:sugar --cov custom_components/
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3.1.4
         with:

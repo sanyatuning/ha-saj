@@ -7,5 +7,5 @@ This library is based on the [core integration](https://www.home-assistant.io/in
 ## Additional features
 
 - Grid voltage sensors
-- Ignoring
+- Ignoring invalid readings
 - Device page
