@@ -7,7 +7,6 @@ on:  # yamllint disable-line rule:truthy
       - master
   pull_request:
   schedule:
-    - cron: "17 6 * * *"
   workflow_dispatch:
 
 env:
