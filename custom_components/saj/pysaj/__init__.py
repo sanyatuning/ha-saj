@@ -183,7 +183,7 @@ class SAJ(object):
                         values = []
 
                         for row in reader:
-                            for (i, v) in enumerate(row):
+                            for i, v in enumerate(row):
                                 values.append(v)
 
                         for sen in sensors:
@@ -209,7 +209,8 @@ class SAJ(object):
 
                             if v == "0" and sen.name == "total_yield":
                                 _LOGGER.warning(
-                                    "Zero value for total_yield! Values: " + (",".join(values))
+                                    "Zero value for total_yield! Values: "
+                                    + (",".join(values))
                                 )
                                 v = None
 

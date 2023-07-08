@@ -1,5 +1,5 @@
 # serializer version: 1
-# name: test_eth[pyloop-status1.xml]
+# name: test_eth[status1.xml]
   list([
     'current_power:2303',
     'grid_voltage:None',
@@ -16,7 +16,7 @@
     'today_max_current:2930',
   ])
 # ---
-# name: test_eth[pyloop-status2.xml]
+# name: test_eth[status2.xml]
   list([
     'current_power:4986',
     'grid_voltage:243.0',
@@ -33,7 +33,7 @@
     'today_max_current:None',
   ])
 # ---
-# name: test_eth[pyloop-status3.xml]
+# name: test_eth[status3.xml]
   list([
     'current_power:449',
     'grid_voltage:227.2',
@@ -50,7 +50,7 @@
     'today_max_current:None',
   ])
 # ---
-# name: test_wifi[pyloop-0-15020J2012EN02905]
+# name: test_wifi[0-15020J2012EN02905]
   list([
     'current_power:1921',
     'grid_voltage:None',
@@ -67,7 +67,7 @@
     'today_max_current:None',
   ])
 # ---
-# name: test_wifi[pyloop-1-21030G1628XXYYYYY]
+# name: test_wifi[1-21030G1628XXYYYYY]
   list([
     'current_power:1040',
     'grid_voltage:None',

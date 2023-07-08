@@ -18,12 +18,12 @@ from homeassistant.const import (
     CONF_PASSWORD,
     CONF_TYPE,
     CONF_USERNAME,
-    ENERGY_KILO_WATT_HOUR,
-    MASS_KILOGRAMS,
-    POWER_WATT,
-    TEMP_CELSIUS,
-    TEMP_FAHRENHEIT,
-    TIME_HOURS,
+    UnitOfElectricPotential,
+    UnitOfEnergy,
+    UnitOfMass,
+    UnitOfPower,
+    UnitOfTemperature,
+    UnitOfTime,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
@@ -39,11 +39,12 @@ _LOGGER = logging.getLogger(__name__)
 
 SAJ_UNIT_MAPPINGS = {
     "": None,
-    "h": TIME_HOURS,
-    "kg": MASS_KILOGRAMS,
-    "kWh": ENERGY_KILO_WATT_HOUR,
-    "W": POWER_WATT,
-    "°C": TEMP_CELSIUS,
+    "h": UnitOfTime.HOURS,
+    "kg": UnitOfMass.KILOGRAMS,
+    "kWh": UnitOfEnergy.KILO_WATT_HOUR,
+    "W": UnitOfPower.WATT,
+    "V": UnitOfElectricPotential.VOLT,
+    "°C": UnitOfTemperature.CELSIUS,
 }
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
@@ -97,6 +98,7 @@ class SAJSensor(CoordinatorEntity, SensorEntity):
         """Initialize the SAJ sensor."""
         super().__init__(coordinator)
         self._attr_unique_id = f"{coordinator.serialnumber}_{pysaj_sensor.name}"
+        self._attr_native_unit_of_measurement = SAJ_UNIT_MAPPINGS[pysaj_sensor.unit]
         self._sensor = pysaj_sensor
 
         if pysaj_sensor.name in ("current_power", "temperature"):
@@ -137,16 +139,14 @@ class SAJSensor(CoordinatorEntity, SensorEntity):
         return super().available
 
     @property
-    def native_unit_of_measurement(self):
-        """Return the unit the value is expressed in."""
-        return SAJ_UNIT_MAPPINGS[self._sensor.unit]
-
-    @property
     def device_class(self):
         """Return the device class the sensor belongs to."""
-        if self.native_unit_of_measurement == POWER_WATT:
+        if self.native_unit_of_measurement == UnitOfPower.WATT:
             return SensorDeviceClass.POWER
-        if self.native_unit_of_measurement == ENERGY_KILO_WATT_HOUR:
+        if self.native_unit_of_measurement == UnitOfEnergy.KILO_WATT_HOUR:
             return SensorDeviceClass.ENERGY
-        if self.native_unit_of_measurement in (TEMP_CELSIUS, TEMP_FAHRENHEIT):
+        if self.native_unit_of_measurement in (
+            UnitOfTemperature.CELSIUS,
+            UnitOfTemperature.FAHRENHEIT,
+        ):
             return SensorDeviceClass.TEMPERATURE

@@ -1,9 +1,9 @@
 aiohttp
 aioresponses
-homeassistant==2022.11.4
+homeassistant==2023.6.3
 pytest
 pytest-aiohttp
 pytest-asyncio
 pytest-cov
-pytest-homeassistant-custom-component==0.12.21
-syrupy
+pytest-homeassistant-custom-component==0.13.39
+syrupy==4.0.2
