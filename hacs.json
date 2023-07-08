@@ -1,4 +1,5 @@
 {
   "name": "SAJ Solar Inverter",
-  "homeassistant": "2022.11.4"
+  "homeassistant": "2022.11.4",
+  "render_readme": true
 }
