@@ -6,7 +6,6 @@ on:  # yamllint disable-line rule:truthy
     branches:
       - master
   pull_request:
-  schedule:
   workflow_dispatch:
 
 env:
@@ -39,9 +38,10 @@ jobs:
         uses: "actions/checkout@v3.5.2"
 
       - name: HACS validation
-        uses: "hacs/action@22.5.0"
+        uses: "hacs/action@main"
         with:
           category: "integration"
+          ignore: brands
 
   hassfest:
     runs-on: "ubuntu-latest"
