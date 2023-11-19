@@ -16,6 +16,7 @@ testdata_eth = [
 testdata_wifi = [
     (0, "15020J2012EN02905"),
     (1, "21030G1628XXYYYYY"),
+    (2, "14020G1728EN19744"),
 ]
 
 
@@ -56,6 +57,13 @@ async def test_wifi(index, serial, mocked, snapshot: SnapshotAssertion):
     mocked.get("http://admin:admin@192.168.0.9/info.php", body=info_line)
     mocked.get("http://admin:admin@192.168.0.9/status/status.php", body=status_line)
     await saj.read(sensors)
-    assert [s.name + ":" + str(s.value) for s in sensors] == snapshot
+
+    enabled_count = len([s for s in sensors if s.enabled])
+    if serial == "14020G1728EN19744":
+        # invalid CSV
+        assert enabled_count == 0
+    else:
+        assert enabled_count == 9
+        assert [s.name + ":" + str(s.value) for s in sensors] == snapshot
 
     assert saj.serialnumber == serial

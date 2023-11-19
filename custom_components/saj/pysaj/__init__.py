@@ -12,11 +12,11 @@ import aiohttp
 _LOGGER = logging.getLogger(__name__)
 
 MAPPER_STATES = {
-    "0": "Not connected",
-    "1": "Waiting",
-    "2": "Normal",
-    "3": "Error",
-    "4": "Upgrading",
+    0: "Not connected",
+    1: "Waiting",
+    2: "Normal",
+    3: "Error",
+    4: "Upgrading",
 }
 MAX_UNSIGNED_SHORT = 65535
 
@@ -177,14 +177,13 @@ class SAJ(object):
                     if self.wifi:
                         csv_data = StringIO(data)
                         reader = csv.reader(csv_data)
-                        ncol = len(next(reader))
-                        csv_data.seek(0)
+                        values = [int(v) for v in next(reader)]
+                        ncol = len(values)
 
-                        values = []
-
-                        for row in reader:
-                            for i, v in enumerate(row):
-                                values.append(v)
+                        if sum(values) == 1:
+                            # invalid reading: 1,0,0,0,0,0....
+                            _LOGGER.warning("Invalid reading! Values: " + data)
+                            return False
 
                         for sen in sensors:
                             if ncol < 24:
@@ -204,14 +203,7 @@ class SAJ(object):
                                 else:
                                     v = None
 
-                            if v == str(MAX_UNSIGNED_SHORT):
-                                v = None
-
-                            if v == "0" and sen.name == "total_yield":
-                                _LOGGER.warning(
-                                    "Zero value for total_yield! Values: "
-                                    + (",".join(values))
-                                )
+                            if v == MAX_UNSIGNED_SHORT:
                                 v = None
 
                             if v is not None:
